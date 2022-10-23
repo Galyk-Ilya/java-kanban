@@ -7,21 +7,14 @@ public class EpicTask extends CommonTask {
         super(name, description);
     }
 
-    private ArrayList<Subtask> subtasksList = new ArrayList<>();
+    private final ArrayList<Subtask> subtasksList = new ArrayList<>();
 
     public ArrayList<Subtask> getSubtasksList() {
         return subtasksList;
     }
 
-    public void taskInfo() {
-        System.out.println("{EpicTask [name = '" + name + "', description = '" + description
-                + "', status = '" + status + "'.]}");
-        if (getSubtasksList().size() > 0) {
-            for (int i = 0; i < subtasksList.size(); i++) {
-                Subtask subtask = subtasksList.get(i);
-                System.out.println("{Subtask [name = '" + subtask.name + "', description = '" + subtask.description
-                        + "', status = '" + subtask.status + "'.]}");
-            }
-        }
+    @Override
+    public String toString() {
+        return "{EpicTask = [name = '" + name + "', description = '" + description + "', status = '" + status + "'.]}";
     }
 }

@@ -4,11 +4,12 @@ import task.CommonTask;
 import task.EpicTask;
 import task.Subtask;
 
-import java.util.ArrayList;
 import java.util.Random;
 
+import static ManagerAndStorage.StatusType.*;
+
 public class Manager {
-    TaskStorage taskStorage = new TaskStorage();
+    private final TaskStorage taskStorage = new TaskStorage();
 
     public void getAllTaskList() {
         if (taskStorage.getTaskList().size() < 1 || taskStorage.getTaskList() == null) {
@@ -17,7 +18,7 @@ public class Manager {
             for (CommonTask tool : taskStorage.getTaskList().values()) {
                 if (String.valueOf(tool.getClass()).equals("class task.EpicTask")) {
                     EpicTask test = (EpicTask) tool;
-                    test.taskInfo();
+                    getSubtask(test);
                     System.out.println();
                 } else if (String.valueOf(tool.getClass()).equals("class task.CommonTask")) {
                     System.out.println(tool);
@@ -33,7 +34,6 @@ public class Manager {
 
     public CommonTask getByID(Integer ID) {
         if (taskStorage.getTaskList().containsKey(ID)) {
-            System.out.println(taskStorage.getTaskList().get(ID));
             return taskStorage.getTaskList().get(ID);
         } else {
             System.out.println("Задача отсутстует");
@@ -43,7 +43,13 @@ public class Manager {
 
     public void deleteByID(Integer ID) {
         if (taskStorage.getTaskList().containsKey(ID)) {
-            System.out.println("Задача " + taskStorage.getTaskList().get(ID) + " ID №" + ID + " удалена.");
+            if (String.valueOf(taskStorage.getTaskList().get(ID).getClass()).equals("class task.EpicTask")) {
+                EpicTask epicTask = (EpicTask)  taskStorage.getTaskList().get(ID);
+                System.out.println(epicTask + " ID №" + ID + " удалена.");
+            } else {
+                System.out.println(taskStorage.getTaskList().get(ID) + " ID №" + ID + " удалена.");
+            }
+
             taskStorage.getTaskList().remove(ID);
             for (CommonTask i : taskStorage.getTaskList().values()) {
                 if (String.valueOf(i.getClass()).equals("class task.EpicTask")) {
@@ -61,12 +67,15 @@ public class Manager {
         }
     }
 
-    public ArrayList<Subtask> getSubtask(EpicTask task) {
-        System.out.println("EpicTask subtasks: " + task);
-        for (Subtask subtask : task.getSubtasksList()) {
-            System.out.println(subtask);
+    public void getSubtask(EpicTask task) {
+        System.out.println("{EpicTask [name = '" + task.getName() + "', description = '" + task.getDescription()
+                + "', status = '" + task.getStatus() + "'.]}");
+        if (task.getSubtasksList().size() > 0) {
+            for (Subtask subtask : task.getSubtasksList()) {
+                System.out.println("{Subtask [name = '" + subtask.getName() + "', description = '" + subtask.getDescription()
+                        + "', status = '" + subtask.getStatus() + "'.]}");
+            }
         }
-        return task.getSubtasksList();
     }
 
     public void createATask(CommonTask task) {
@@ -93,6 +102,7 @@ public class Manager {
             taskStorage.getTaskList().put(idSubtask, i);
             task.getSubtasksList().add(i);
             i.setId(idSubtask);
+            i.setEpicId(idEpicTask);
         }
     }
 
@@ -106,16 +116,16 @@ public class Manager {
                 EpicTask epicTask = (EpicTask) tool;
                 int testStatus = 0;
                 for (Subtask taskTest : epicTask.getSubtasksList()) {
-                    if (taskTest.getStatus().equals("NEW")) {
+                    if (taskTest.getStatus().equals(NEW)) {
                         testStatus++;
                     }
                 }
                 if (epicTask.getSubtasksList().size() < 1 || testStatus == epicTask.getSubtasksList().size()) {
-                    epicTask.setStatus("NEW");
+                    epicTask.setStatus(NEW);
                 } else if (testStatus == 0) {
-                    epicTask.setStatus("DONE");
+                    epicTask.setStatus(DONE);
                 } else {
-                    epicTask.setStatus("IN_PROGRESS");
+                    epicTask.setStatus(IN_PROGRESS);
                 }
             }
         }

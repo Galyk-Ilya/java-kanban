@@ -1,22 +1,27 @@
 package task;
 
+import ManagerAndStorage.StatusType;
+
+import static ManagerAndStorage.StatusType.NEW;
+
 public class CommonTask {
     protected String name;
     protected String description;
-    protected String status;
     protected Integer id;
+    protected StatusType status;
+
 
     public CommonTask(String name, String description) {
         this.name = name;
         this.description = description;
-        status = "NEW";
+        status = NEW;
     }
 
-    public String getStatus() {
+    public StatusType getStatus() {
         return status;
     }
 
-    public void setStatus(String status) { this.status = status; }
+    public void setStatus(StatusType status) { this.status = status; }
 
     public String getName() {
         return name;
@@ -36,7 +41,7 @@ public class CommonTask {
 
     @Override
     public String toString() {
-        return "{name = '" + name + "', description = '" + description + "', status = '" + status + "'.}";
+        return "{CommonTask = [name = '" + name + "', description = '" + description + "', status = '" + status + "'.]}";
     }
 
     public void setId(Integer id) {
