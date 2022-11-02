@@ -1,7 +1,6 @@
 package pattern;
 
-import memoryManagers.InMemoryHistoryManager;
-import memoryManagers.InMemoryTaskManager;
+import memoryManagers.*;
 
 public class Managers {
     public static TaskManager getDefault() {

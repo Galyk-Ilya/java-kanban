@@ -1,6 +1,7 @@
 package task;
 
 import pattern.StatusType;
+import pattern.TaskType;
 
 import static pattern.StatusType.NEW;
 
@@ -10,13 +11,17 @@ public class CommonTask {
     protected Integer id;
     protected StatusType status;
     protected boolean taskReviewed;
-
+    protected TaskType type = TaskType.TASK;
 
     public CommonTask(String name, String description) {
         this.name = name;
         this.description = description;
         status = NEW;
         taskReviewed = false;
+    }
+
+    public TaskType getType() {
+        return type;
     }
 
     public StatusType getStatus() {

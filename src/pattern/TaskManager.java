@@ -1,8 +1,8 @@
 package pattern;
 
-import task.CommonTask;
-import task.EpicTask;
-import task.Subtask;
+import task.*;
+
+import java.util.HashMap;
 
 public interface TaskManager {
     void getAllTaskList();
@@ -22,6 +22,8 @@ public interface TaskManager {
     void updateTask(CommonTask task);
 
     Integer generateID();
+
+    HashMap<Integer, CommonTask> getTaskList();
 
 }
 

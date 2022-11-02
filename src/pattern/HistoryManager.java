@@ -1,10 +1,16 @@
 package pattern;
 
-import task.CommonTask;
-
-import java.util.ArrayList;
+import task.*;
 
 public interface HistoryManager {
+
     void add(CommonTask task);
-    ArrayList<CommonTask> getHistory();
+
+    void getHistory();
+
+    CommonTask getTask(Integer ID);
+
+     Subtask getSubtask(Integer ID);
+
+    EpicTask getEpic(Integer ID);
 }

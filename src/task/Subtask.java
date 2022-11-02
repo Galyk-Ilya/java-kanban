@@ -1,10 +1,13 @@
 package task;
 
+import pattern.TaskType;
+
 public class Subtask extends CommonTask {
     private Integer epicId;
 
     public Subtask(String name, String description) {
         super(name, description);
+         type = TaskType.SUBTASK;
     }
 
     public Integer getEpicId() {

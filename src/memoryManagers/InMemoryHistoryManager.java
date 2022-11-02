@@ -1,18 +1,13 @@
 package memoryManagers;
 
-import pattern.HistoryManager;
-import pattern.Managers;
-import task.CommonTask;
-import task.EpicTask;
-import task.Subtask;
+import pattern.*;
+import task.*;
 
 import java.util.ArrayList;
 
 public class InMemoryHistoryManager implements HistoryManager {
     private final ArrayList<CommonTask> browsingHistory = new ArrayList<>();
-    private final InMemoryTaskManager taskManager = (InMemoryTaskManager) Managers.getDefault();
-// попытался реализовать класс Managers, честно говоря не до конца понял суть задачи, почитал про "Паттерн Factory"
-// наша цель - автоматическое создание объекта с помощью метода getDefault() или тут какая-то иная доп. задача?)
+    private final TaskManager taskManager = Managers.getDefault();
 
     @Override
     public void add(CommonTask task) {
@@ -20,7 +15,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     @Override
-    public ArrayList<CommonTask> getHistory() {
+    public void getHistory() {
         ArrayList<CommonTask> resultHistory = new ArrayList<>();
         System.out.println("История просмотренных задач:");
         if (browsingHistory.size() >= 10) {
@@ -28,13 +23,14 @@ public class InMemoryHistoryManager implements HistoryManager {
                 System.out.println(browsingHistory.get(i).getName());
                 resultHistory.add(browsingHistory.get(i));
             }
-            return resultHistory;
         } else {
-            System.out.println(browsingHistory);
-            return browsingHistory;
+            for( CommonTask i : browsingHistory){
+                System.out.println(i.getName());
+            }
         }
     }
 
+    @Override
     public CommonTask getTask(Integer ID) {
         if (taskManager.getTaskList().containsKey(ID)) {
             browsingHistory.add(taskManager.getTaskList().get(ID));
@@ -47,6 +43,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
     }
 
+    @Override
     public Subtask getSubtask(Integer ID) {
         if (taskManager.getTaskList().containsKey(ID)) {
             browsingHistory.add(taskManager.getTaskList().get(ID));
@@ -59,6 +56,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
     }
 
+    @Override
     public EpicTask getEpic(Integer ID) {
         if (taskManager.getTaskList().containsKey(ID)) {
             browsingHistory.add(taskManager.getTaskList().get(ID));
