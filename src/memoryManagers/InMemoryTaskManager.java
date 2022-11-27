@@ -1,5 +1,7 @@
 package memoryManagers;
 
+import pattern.HistoryManager;
+import pattern.Managers;
 import pattern.TaskManager;
 import pattern.TaskType;
 import task.*;
@@ -12,6 +14,7 @@ import static pattern.StatusType.*;
 public class InMemoryTaskManager implements TaskManager {
 
     private static final HashMap<Integer, CommonTask> taskList = new HashMap<>();
+    private static final HistoryManager getDefaultHistory = Managers.getDefaultHistory();
 
     @Override
     public HashMap<Integer, CommonTask> getTaskList() {
@@ -64,22 +67,14 @@ public class InMemoryTaskManager implements TaskManager {
             if (taskList.get(ID).getType() == TaskType.SUBTASK) {
                 Subtask subtask = (Subtask) taskList.get(ID);
                 epicUpdate = subtask.getEpicId();
-            }
-            taskList.remove(ID);
-
-            OUTER:
-            for (CommonTask i : taskList.values()) {
-                if (i.getType() == TaskType.EPIC_TASK) {
-                    EpicTask epicTask = (EpicTask) i;
-                    for (Subtask j : epicTask.getSubtasksList()) {
-                        if (j.getId().equals(ID)) {
-                            epicTask.getSubtasksList().remove(j);
-                            updateTask(taskList.get(epicUpdate));
-                            break OUTER;
-                        }
-                    }
+                EpicTask epicTask = (EpicTask) taskList.get(epicUpdate);
+                if (epicTask != null) {
+                    epicTask.getSubtasksList().remove(subtask);
+                    updateTask(taskList.get(epicUpdate));
                 }
             }
+            taskList.remove(ID);
+            getDefaultHistory.remove(ID);
         } else {
             System.out.println("Задача с таким идентификатором отсутстует");
         }

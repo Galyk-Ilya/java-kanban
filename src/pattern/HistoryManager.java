@@ -2,15 +2,13 @@ package pattern;
 
 import task.*;
 
+import java.util.List;
+
 public interface HistoryManager {
 
     void add(CommonTask task);
 
-    void getHistory();
+    List<CommonTask> getHistory();
 
-    CommonTask getTask(Integer ID);
-
-     Subtask getSubtask(Integer ID);
-
-    EpicTask getEpic(Integer ID);
+    void remove(int id);
 }
