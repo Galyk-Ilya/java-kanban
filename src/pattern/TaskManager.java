@@ -40,4 +40,3 @@ public interface TaskManager {
     Subtask getSubtask(Integer ID);
 
 }
-
