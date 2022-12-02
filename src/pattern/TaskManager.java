@@ -1,10 +1,14 @@
 package pattern;
 
-import task.*;
+import task.CommonTask;
+import task.EpicTask;
+import task.Subtask;
 
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public interface TaskManager {
+
     void getAllTaskList();
 
     void clearTaskList();
@@ -13,17 +17,27 @@ public interface TaskManager {
 
     void deleteByID(Integer ID);
 
-    void getSubtask(EpicTask task);
+    List<Subtask> getListSubtasks(EpicTask task);
 
-    void createATask(EpicTask epicTask, Subtask... subtask);
+    EpicTask createATask(EpicTask task);
 
-    void createATask(CommonTask commonTask);
+    EpicTask createATask(EpicTask epicTask, Subtask... subtask);
+
+    CommonTask createATask(CommonTask commonTask);
 
     void updateTask(CommonTask task);
 
+    List<CommonTask> getHistory();
+
     Integer generateID();
 
-    HashMap<Integer, CommonTask> getTaskList();
+    Map<Integer, CommonTask> getTaskList();
+
+    CommonTask getTask(Integer ID);
+
+    EpicTask getEpic(Integer ID);
+
+    Subtask getSubtask(Integer ID);
 
 }
 

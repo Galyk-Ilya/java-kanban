@@ -16,8 +16,4 @@ public class Subtask extends CommonTask {
     public void setEpicId(Integer epicId) {
         this.epicId = epicId;
     }
-    @Override
-    public String toString() {
-        return "{Subtask = [name = '" + name + "', description = '" + description + "', status = '" + status + "'.]}";
-    }
 }

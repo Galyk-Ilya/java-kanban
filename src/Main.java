@@ -1,46 +1,53 @@
-import pattern.HistoryManager;
 import pattern.Managers;
 import pattern.TaskManager;
-import task.EpicTask;
-import task.Subtask;
+import task.*;
 
 public class Main {
     public static void main(String[] args) {
         TaskManager taskManager = Managers.getDefault();
-        HistoryManager historyManager = Managers.getDefaultHistory();
-        EpicTask epicTask1 = new EpicTask("Учиться программировать",
-                "Пройти весь десятимесячный курс обучения Я.Практикума");
-        Subtask subtask1_E1 = new Subtask("Учить теорию и выполнять задания",
-                "Ежедневно изучать теорию которую дает платформа Я.Практикум и практиковаться с её помощью");
-        Subtask subtask2_E1 = new Subtask("Соблюдать дедлайны",
-                "Своевременно выполнять все необходимые задачи спринтов");
-        Subtask subtask3_E1 = new Subtask("Изучить Spring",
-                "Пройти курс Alishev на ютубе");
-        EpicTask epicTask2 = new EpicTask("Сходить в театр", "Сходить в театр оперы и балета на щелкунчика");
+        EpicTask epicTask1 = new EpicTask("Заголовок №1",
+                "тело задачи №1");
+        Subtask subtask1_E1 = new Subtask("Заголовок №2",
+                "тело задачи №2");
+        Subtask subtask2_E1 = new Subtask("Заголовок №3",
+                "тело задачи №3");
+        Subtask subtask3_E1 = new Subtask("Заголовок №4",
+                "тело задачи №4");
+        EpicTask epicTask2 = new EpicTask("Заголовок №5",
+                "тело задачи №6");
 
+//Исправления функционала TaskManager
+        EpicTask eTask1 = taskManager.createATask(epicTask1, subtask1_E1, subtask2_E1, subtask3_E1);
+        // taskManager.createATask сделал возвращающим epic для доступа к id вновь созданным объектам
+        // (при создании новых(но дублирующих уже имеющихся) теряю ссылка на объект).
 
-        taskManager.createATask(epicTask1, subtask1_E1, subtask2_E1, subtask3_E1);
-        taskManager.createATask(epicTask2);
+        taskManager.createATask(epicTask1, subtask1_E1, subtask1_E1, subtask1_E1);
+        EpicTask eTask2 = taskManager.createATask(epicTask2);
+        taskManager.getListSubtasks(eTask1);
         taskManager.getAllTaskList();
 
-        historyManager.add(epicTask1);
-        historyManager.add(subtask1_E1);
-        historyManager.add(subtask2_E1);
-        historyManager.add(subtask3_E1);
-        historyManager.add(epicTask2);
-        historyManager.getHistory();
+//Функционал HistoryManager
+        taskManager.getEpic(eTask1.getId());
+        taskManager.getSubtask(eTask1.getSubtasksList().get(0).getId());
+        taskManager.getSubtask(eTask1.getSubtasksList().get(1).getId());
+        taskManager.getSubtask(eTask1.getSubtasksList().get(2).getId());
+        taskManager.getEpic(eTask2.getId());
+        for (CommonTask task : taskManager.getHistory()) {
+            System.out.println(task);
+        }
+// Как избежать создания  метода getHistory() в taskManager чтобы добраться до истории?
+// (Или в создании геттера и заключалась задача)
 
-        historyManager.add(subtask3_E1);
-        historyManager.add(epicTask2);
-        historyManager.add(subtask3_E1);
-        historyManager.getHistory();
+        taskManager.getSubtask(eTask1.getSubtasksList().get(2).getId());
+        taskManager.getEpic(eTask1.getId());
+        for (CommonTask task : taskManager.getHistory()) {
+            System.out.println(task);
+        }
 
-        taskManager.deleteByID(subtask2_E1.getId());
-        historyManager.getHistory();
-        taskManager.deleteByID(epicTask1.getId());
-        historyManager.getHistory();
-
-        //тесты работают, но возможно другой реализации от меня ждут)
-        // буду рад если подробнее будут комментарии
+        System.out.println();
+        taskManager.deleteByID(eTask1.getId());
+        for (CommonTask task : taskManager.getHistory()) {
+            System.out.println(task);
+        }
     }
 }

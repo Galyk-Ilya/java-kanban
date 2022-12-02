@@ -59,7 +59,7 @@ public class CommonTask {
 
     @Override
     public String toString() {
-        return "{CommonTask = [name = '" + name + "', description = '" + description + "', status = '" + status + "'.]}";
+        return "{" + this.getType() + " [name = '" + name + "', id = '" + id + "', status = '" + status + "'.]}";
     }
 
     public void setId(Integer id) {
