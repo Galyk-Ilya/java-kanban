@@ -11,9 +11,9 @@ import static pattern.StatusType.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private static final Map<Integer, CommonTask> taskList = new HashMap<>();
-    private static final HistoryManager getDefaultHistory = Managers.getDefaultHistory();
-    private static Integer ID = 0;
+    private final Map<Integer, CommonTask> taskList = new HashMap<>();
+    private final HistoryManager getDefaultHistory = Managers.getDefaultHistory();
+    private Integer ID = 0;
 
     @Override
     public Map<Integer, CommonTask> getTaskList() {

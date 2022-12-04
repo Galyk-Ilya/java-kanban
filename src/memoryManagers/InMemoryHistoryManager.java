@@ -9,8 +9,9 @@ import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
-    Node head;
-    private static final HashMap<Integer, Node> nodeMap = new HashMap<>();
+    private final HashMap<Integer, Node> nodeMap = new HashMap<>();
+    private Node first;
+    private Node last;
 
     @Override
     public List<CommonTask> getHistory() {
@@ -21,33 +22,30 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public void remove(int id) {
         Node currentNode = nodeMap.get(id);
-        removeNode(currentNode.item);
+        removeNode(currentNode);
         nodeMap.remove(id);
     }
 
     @Override
-    public void addLast(CommonTask t) {
-        if (head == null) {
-            head = new Node(t);
-            nodeMap.put(t.getId(), head);
-            return;
-        }
-        Node currentNode = head;
-        while (currentNode.next != null) {
-            currentNode = currentNode.next;
-        }
+    public void addLast(CommonTask task) {
+        final Node l = last;
+        final Node newNode = new Node(l, task, null);
+        last = newNode;
 
-        if (nodeMap.containsKey(t.getId())) {
-            removeNode(nodeMap.get(t.getId()).item);
+        if (l == null) {
+            first = newNode;
+        } else {
+            l.next = newNode;
         }
-        currentNode.next = new Node(t);
-        nodeMap.put(t.getId(), currentNode.next);
-
+        if (nodeMap.containsKey(task.getId())) {
+            removeNode(nodeMap.get(task.getId()));
+        }
+        nodeMap.put(task.getId(), newNode);
     }
 
     private List<CommonTask> getTasks() {
         ArrayList<CommonTask> test = new ArrayList<>();
-        Node currentNode = head;
+        Node currentNode = first;
 
         while (currentNode.next != null) {
             test.add(currentNode.item);
@@ -57,30 +55,35 @@ public class InMemoryHistoryManager implements HistoryManager {
         return test;
     }
 
-    public void removeNode(CommonTask t) {
-        if (head == null) {
-            return;
+    private void removeNode(Node x) {
+
+        nodeMap.remove(x.item.getId());
+        final Node next = x.next;
+        final Node prev = x.prev;
+
+        if (prev == null) {
+            first = next;
+        } else {
+            prev.next = next;
+            x.prev = null;
         }
-        if (head.item == t) {
-            head = head.next;
-            return;
-        }
-        Node currentNode = head;
-        while (currentNode.next != null) {
-            if (currentNode.next.item == t) {
-                currentNode.next = currentNode.next.next;
-                return;
-            }
-            currentNode = currentNode.next;
+        if (next == null) {
+            last = prev;
+        } else {
+            next.prev = prev;
+            x.next = null;
         }
     }
 
     static class Node {
         public CommonTask item;
         public Node next;
+        public Node prev;
 
-        public Node(CommonTask item) {
-            this.item = item;
+        public Node(Node prev, CommonTask data, Node next) {
+            this.item = data;
+            this.next = next;
+            this.prev = prev;
         }
     }
 }
