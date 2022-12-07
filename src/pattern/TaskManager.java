@@ -19,11 +19,11 @@ public interface TaskManager {
 
     List<Subtask> getListSubtasks(EpicTask task);
 
-    EpicTask createATask(EpicTask task);
-
-    EpicTask createATask(EpicTask epicTask, Subtask... subtask);
+    EpicTask createEpicTask(EpicTask task);
 
     CommonTask createATask(CommonTask commonTask);
+
+    EpicTask createEpicAndSubtask(EpicTask task, Subtask... subtask);
 
     void updateTask(CommonTask task);
 
@@ -38,5 +38,4 @@ public interface TaskManager {
     EpicTask getEpic(Integer ID);
 
     Subtask getSubtask(Integer ID);
-
 }

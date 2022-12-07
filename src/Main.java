@@ -16,15 +16,12 @@ public class Main {
         EpicTask epicTask2 = new EpicTask("Заголовок №5",
                 "Тело задачи №6");
 
+        EpicTask createEpic1 = taskManager.createEpicAndSubtask(epicTask1, subtask1_E1, subtask2_E1, subtask3_E1);
+        taskManager.createEpicAndSubtask(epicTask1, subtask1_E1, subtask1_E1, subtask1_E1);
+        EpicTask createEpic2 = taskManager.createEpicTask(epicTask2);
+        taskManager.getListSubtasks(createEpic1);
+        taskManager.getAllTaskList();
 
-        EpicTask createEpic1 = taskManager.createATask(epicTask1, subtask1_E1, subtask2_E1, subtask3_E1);
-//
-//        taskManager.createATask(epicTask1, subtask1_E1, subtask1_E1, subtask1_E1);
-        EpicTask createEpic2 = taskManager.createATask(epicTask2);
-//        taskManager.getListSubtasks(eTask1);
-//        taskManager.getAllTaskList();
-
-//Функционал HistoryManager
         taskManager.getEpic(createEpic1.getId());
         taskManager.getSubtask(createEpic1.getSubtasksList().get(0).getId());
         taskManager.getSubtask(createEpic1.getSubtasksList().get(1).getId());

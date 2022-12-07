@@ -12,24 +12,22 @@ public class EpicTask extends CommonTask {
         type = TaskType.EPIC_TASK;
     }
 
-//    @Override
-//    public String toString() {
-//        return "EpicTask{" +
-//                "subtasksList=" + subtasksList +
-//                ", name='" + name + "'" +
-//                ", description='" + description + "'" +
-//                ", id=" + id +
-//                ", status=" + status +
-//                ", taskReviewed=" + taskReviewed +
-//                ", type=" + type +
-//                '}';
-//    }
-
     private final List<Subtask> subtasksList = new ArrayList<>();
+
+    @Override
+    public String toString() {
+        return "EpicTask{" +
+                "subtasksList=" + subtasksList +
+                ", name='" + name + "'" +
+                ", description='" + description + "'" +
+                ", id=" + id +
+                ", status=" + status +
+                ", taskReviewed=" + taskReviewed +
+                ", type=" + type +
+                '}';
+    }
 
     public List<Subtask> getSubtasksList() {
         return subtasksList;
     }
-
-
 }

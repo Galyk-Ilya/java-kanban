@@ -11,9 +11,9 @@ import static pattern.StatusType.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private final Map<Integer, CommonTask> taskList = new HashMap<>();
-    private final HistoryManager getDefaultHistory = Managers.getDefaultHistory();
-    private Integer ID = 0;
+    final Map<Integer, CommonTask> taskList = new HashMap<>();
+    final HistoryManager getDefaultHistory = Managers.getDefaultHistory();
+    private Integer ID = 1;
 
     @Override
     public Map<Integer, CommonTask> getTaskList() {
@@ -30,7 +30,7 @@ public class InMemoryTaskManager implements TaskManager {
                     EpicTask test = (EpicTask) tool;
                     getListSubtasks(test);
                     System.out.println();
-                } else if (tool.getType() == TaskType.TASK) {
+                } else if (tool.getType() == TaskType.COMMONTASK) {
                     System.out.println(tool);
                 }
             }
@@ -109,7 +109,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public EpicTask createATask(EpicTask task) {
+    public EpicTask createEpicTask(EpicTask task) {
         Integer id = generateID();
         EpicTask newTask = new EpicTask(task.getName(), task.getDescription());
         taskList.put(id, newTask);
@@ -119,7 +119,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public EpicTask createATask(EpicTask task, Subtask... subtask) {
+    public EpicTask createEpicAndSubtask(EpicTask task, Subtask... subtask) {
         EpicTask newEpicTask = new EpicTask(task.getName(), task.getDescription());
         Integer idEpicTask = generateID();
         taskList.put(idEpicTask, newEpicTask);
@@ -192,6 +192,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public Integer generateID() {
-        return ++ID;
+        while (taskList.containsKey(ID)) {
+             ++ID;
+         }
+        return ID;
     }
 }

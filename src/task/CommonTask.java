@@ -11,7 +11,7 @@ public class CommonTask {
     protected Integer id;
     protected StatusType status;
     protected boolean taskReviewed;
-    protected TaskType type = TaskType.TASK;
+    protected TaskType type = TaskType.COMMONTASK;
 
     public CommonTask(String name, String description) {
         this.name = name;
@@ -36,30 +36,26 @@ public class CommonTask {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setType(TaskType type) {
+        this.type = type;
     }
-
-    public boolean getTaskReviewed() {
-        return taskReviewed;
-    }
-
-    public void setTaskReviewed(boolean taskReviewed) {
-        this.taskReviewed = taskReviewed;
-    }
-
 
     @Override
     public String toString() {
         return "{" + this.getType() + " [name = '" + name + "', id = '" + id + "', status = '" + status + "'.]}";
+    }
+
+    public String toStringToWriteToFile() {
+        return id + ", " +
+                this.getType() + ", " +
+                name + ", " +
+                status + ", " +
+                 description + ", " +
+                "-";
     }
 
     public void setId(Integer id) {

@@ -1,5 +1,5 @@
 package pattern;
 
 public enum TaskType {
-    TASK, EPIC_TASK, SUBTASK
+    COMMONTASK, EPIC_TASK, SUBTASK
 }

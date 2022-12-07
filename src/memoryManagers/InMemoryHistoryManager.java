@@ -74,8 +74,12 @@ public class InMemoryHistoryManager implements HistoryManager {
             x.next = null;
         }
     }
+    @Override
+    public HashMap<Integer, Node> getNodeMap() {
+        return nodeMap;
+    }
 
-    static class Node {
+    public static class Node {
         public CommonTask item;
         public Node next;
         public Node prev;
