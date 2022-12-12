@@ -1,6 +1,6 @@
-package pattern;
+package managers;
 
-import memoryManagers.InMemoryHistoryManager;
+import managers.impl.InMemoryHistoryManager;
 import task.CommonTask;
 
 import java.util.HashMap;
@@ -14,5 +14,5 @@ public interface HistoryManager {
 
     void remove(int id);
 
-    public HashMap<Integer, InMemoryHistoryManager.Node> getNodeMap();
+    HashMap<Integer, InMemoryHistoryManager.Node> getNodeMap();
 }

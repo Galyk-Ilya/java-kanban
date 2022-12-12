@@ -1,6 +1,6 @@
-package memoryManagers;
+package managers.impl;
 
-import pattern.HistoryManager;
+import managers.HistoryManager;
 import task.CommonTask;
 
 import java.util.ArrayList;
@@ -15,15 +15,17 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public List<CommonTask> getHistory() {
-        System.out.println("\nИстория просмотренных задач:");
+//        System.out.println("\nИстория просмотренных задач:");
         return getTasks();
     }
 
     @Override
     public void remove(int id) {
-        Node currentNode = nodeMap.get(id);
-        removeNode(currentNode);
-        nodeMap.remove(id);
+        if (nodeMap.get(id) != null) {
+            Node currentNode = nodeMap.get(id);
+            removeNode(currentNode);
+            nodeMap.remove(id);
+        }
     }
 
     @Override
@@ -41,6 +43,11 @@ public class InMemoryHistoryManager implements HistoryManager {
             removeNode(nodeMap.get(task.getId()));
         }
         nodeMap.put(task.getId(), newNode);
+    }
+
+    @Override
+    public HashMap<Integer, Node> getNodeMap() {
+        return nodeMap;
     }
 
     private List<CommonTask> getTasks() {
@@ -73,10 +80,6 @@ public class InMemoryHistoryManager implements HistoryManager {
             next.prev = prev;
             x.next = null;
         }
-    }
-    @Override
-    public HashMap<Integer, Node> getNodeMap() {
-        return nodeMap;
     }
 
     public static class Node {

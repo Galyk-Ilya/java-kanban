@@ -1,27 +1,20 @@
 package task;
 
-import pattern.StatusType;
-import pattern.TaskType;
+import enums.StatusType;
 
-import static pattern.StatusType.NEW;
+import static enums.StatusType.NEW;
+import static enums.TaskType.COMMONTASK;
 
 public class CommonTask {
     protected String name;
     protected String description;
     protected Integer id;
     protected StatusType status;
-    protected boolean taskReviewed;
-    protected TaskType type = TaskType.COMMONTASK;
 
     public CommonTask(String name, String description) {
         this.name = name;
         this.description = description;
         status = NEW;
-        taskReviewed = false;
-    }
-
-    public TaskType getType() {
-        return type;
     }
 
     public StatusType getStatus() {
@@ -40,18 +33,19 @@ public class CommonTask {
         return description;
     }
 
-    public void setType(TaskType type) {
-        this.type = type;
-    }
-
     @Override
     public String toString() {
-        return "{" + this.getType() + " [name = '" + name + "', id = '" + id + "', status = '" + status + "'.]}";
+        return "{CommonTask" +
+                " [name = '" + name +
+                ", description='" + description + "'" +
+                "', id = '" + id +
+                "', status = '" + status +
+                "'.]}";
     }
 
     public String toStringToWriteToFile() {
         return id + ", " +
-                this.getType() + ", " +
+                COMMONTASK + ", " +
                 name + ", " +
                 status + ", " +
                  description + ", " +

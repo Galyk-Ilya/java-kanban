@@ -1,6 +1,6 @@
-package memoryManagers;
+package exception;
 
-public class ManagerStartDatabaseException extends Exception {
+public class ManagerStartDatabaseException extends RuntimeException {
     public ManagerStartDatabaseException(String message) {
         super(message);
     }

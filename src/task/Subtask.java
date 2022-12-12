@@ -1,31 +1,33 @@
 package task;
 
-import pattern.TaskType;
+import static enums.TaskType.SUBTASK;
 
 public class Subtask extends CommonTask {
     private Integer epicId;
 
     public Subtask(String name, String description) {
         super(name, description);
-        type = TaskType.SUBTASK;
     }
 
     @Override
     public String toString() {
         return "Subtask{" +
-                "epicId=" + epicId +
-                ", name='" + name + "'" +
+                "name='" + name + "'" +
                 ", description='" + description + "'" +
-                ", id=" + id +
-                ", status=" + status +
-                ", taskReviewed=" + taskReviewed +
-                ", type=" + type +
+                ", id=" + id + "'" +
+                ", status=" + status + "'" +
+                ", epicId=" + epicId +
                 '}';
     }
 
     @Override
     public String toStringToWriteToFile() {
-        return super.toStringToWriteToFile().substring(0, super.toStringToWriteToFile().length() - 1) + epicId;
+        return id + ", " +
+                SUBTASK + ", " +
+                name + ", " +
+                status + ", " +
+                description + ", " +
+                epicId;
     }
 
     public Integer getEpicId() {
