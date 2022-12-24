@@ -1,14 +1,19 @@
 package managers.impl;
 
-import enums.*;
-import exception.*;
-import task.*;
+import enums.StatusType;
+import enums.TaskType;
+import exception.ManagerSaveException;
+import exception.ManagerStartDatabaseException;
+import task.CommonTask;
+import task.EpicTask;
+import task.Subtask;
 
 import java.io.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-
-import static enums.TaskType.*;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
 
@@ -20,23 +25,23 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public CommonTask createATask(String nameTask, String description, TaskType type) {
-        CommonTask newTask = super.createATask(nameTask, description, type);
+    public CommonTask createATask(String nameTask, String description, TaskType type, int duration) {
+        CommonTask newTask = super.createATask(nameTask, description, type, duration);
         save();
         return newTask;
 
     }
 
     @Override
-    public EpicTask createEpicTask(String nameTask, String description, TaskType type) {
-        EpicTask newTask = super.createEpicTask(nameTask, description, type);
+    public EpicTask createEpicTask(String nameTask, String description, TaskType type, int duration) {
+        EpicTask newTask = super.createEpicTask(nameTask, description, type, duration);
         save();
         return newTask;
     }
 
     @Override
-    public Subtask createASubtask(String nameTask, String description, TaskType type, int epicId) {
-        Subtask newTask = super.createASubtask(nameTask, description, type, epicId);
+    public Subtask createASubtask(String nameTask, String description, TaskType type, int epicId, int duration) {
+        Subtask newTask = super.createASubtask(nameTask, description, type, epicId, duration);
         save();
         return newTask;
     }
@@ -65,7 +70,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     public void save() {
 
         try (FileWriter writer = new FileWriter(file)) {
-            String header = "id, type, name, status, description, epicNumber \n";
+            String header = "id, type, name, status, description, epicNumber, duration, startTime, endTime \n";
             writer.write(header);
             for (CommonTask task : taskList.values()) {
                 if (task instanceof Subtask) {
@@ -95,46 +100,50 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         List<String> listTasks = new ArrayList<>();
         try (FileReader words = new FileReader(file)) {
             BufferedReader br = new BufferedReader(words);
-
             while (br.ready()) {
                 String line = (br.readLine());
                 listTasks.add(line);
             }
-
         } catch (IOException e) {
             throw new ManagerStartDatabaseException("Error processing existing files");
         }
         return taskConverter(listTasks, fileBackedTasksManager);
     }
 
-    public static FileBackedTasksManager taskConverter(List<String> StringTaskList,
+    public static FileBackedTasksManager taskConverter(List<String> stringTaskList,
                                                        FileBackedTasksManager fileBackedTasksManager) {
 
-        for (String line : StringTaskList) {
+        for (int i = 1; i < stringTaskList.size(); i++) {
+            String line = stringTaskList.get(i);
             String[] lineArray;
             lineArray = line.split(", ");
-            if (line.contains("type") || line.isEmpty()) {
-                continue;
-            } else if (line.contains("COMMONTASK")) {
+            if (line.contains("COMMONTASK")) {
                 CommonTask task = new CommonTask(lineArray[2], lineArray[4]);
                 task.setId(Integer.valueOf(lineArray[0]));
                 task.setStatus(StatusType.valueOf(lineArray[3]));
+                task.setDuration(Duration.parse(lineArray[6]));
+                task.setStartTime(LocalDateTime.parse(lineArray[7], DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
                 fileBackedTasksManager.taskList.put(task.getId(), task);
             } else if (line.contains("EPIC")) {
                 EpicTask task = new EpicTask(lineArray[2], lineArray[4]);
                 task.setId(Integer.valueOf(lineArray[0]));
                 task.setStatus(StatusType.valueOf(lineArray[3]));
+                task.setDuration(Duration.parse(lineArray[6]));
+                task.setStartTime(LocalDateTime.parse(lineArray[7], DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
+                task.setEndTime(LocalDateTime.parse(lineArray[8], DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
                 fileBackedTasksManager.taskList.put(task.getId(), task);
             } else if (line.contains("SUBTASK")) {
                 Subtask task = new Subtask(lineArray[2], lineArray[4]);
                 task.setId(Integer.valueOf(lineArray[0]));
                 task.setStatus(StatusType.valueOf(lineArray[3]));
+                task.setDuration(Duration.parse(lineArray[6]));
+                task.setStartTime(LocalDateTime.parse(lineArray[7], DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
 
                 EpicTask parentEpic = (EpicTask) fileBackedTasksManager.taskList.get(Integer.valueOf(lineArray[5]));
                 task.setEpicId(Integer.valueOf(lineArray[5]));
                 parentEpic.getSubtasksList().add(task);
                 fileBackedTasksManager.taskList.put(task.getId(), task);
-            } else {
+            } else if (!line.isEmpty()) {
                 String[] allHistory = line.split(", ");
                 for (String history : allHistory) {
                     fileBackedTasksManager.getTask(Integer.parseInt(history));
@@ -143,30 +152,4 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         }
         return fileBackedTasksManager;
     }
-
-
-    public static void main(String[] args) {
-        File file = new File("C:\\Users\\Илья\\IdeaProjects\\java-kanban\\src\\resources\\archive.txt");
-        FileBackedTasksManager taskManager = loadFromFile(file);
-
-        CommonTask commonTask1 = taskManager.createATask("Заголовок №1", "Тело задачи №1", COMMONTASK);
-        EpicTask epicTask1 = taskManager.createEpicTask("Заголовок №2", "Тело задачи №2", EPIC_TASK);
-        Subtask subtask1_E1 = taskManager.createASubtask("Заголовок №3", "Тело задачи №3", SUBTASK,
-                epicTask1.getId());
-        Subtask subtask2_E1 = taskManager.createASubtask("Заголовок №4", "Тело задачи №4", SUBTASK,
-                epicTask1.getId());
-        EpicTask epicTask2 = taskManager.createEpicTask("Заголовок №5", "Тело задачи №5", EPIC_TASK);
-
-
-        taskManager.getTask(commonTask1.getId());
-        taskManager.getEpic(epicTask2.getId());
-        taskManager.getEpic(epicTask1.getId());
-        taskManager.getSubtask(subtask1_E1.getId());
-        taskManager.getEpic(epicTask1.getId());
-
-        for (CommonTask h : taskManager.getHistory()) {
-            System.out.println(h);
-        }
-    }
 }
-

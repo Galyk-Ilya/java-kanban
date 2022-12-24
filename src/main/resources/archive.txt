@@ -1,0 +1,4 @@
+id, type, name, status, description, epicNumber, duration, startTime, endTime 
+1, COMMONTASK, Test addNewTask1, NEW, Test addNewTask1 description, -, PT10M, 25.12.2022 01:05, 25.12.2022 01:15
+
+1, 

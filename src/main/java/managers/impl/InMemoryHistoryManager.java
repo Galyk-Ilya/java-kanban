@@ -52,6 +52,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     private List<CommonTask> getTasks() {
         ArrayList<CommonTask> test = new ArrayList<>();
+        if (first == null) { return test;}
         Node currentNode = first;
 
         while (currentNode.next != null) {

@@ -1,5 +1,7 @@
 package task;
 
+import java.time.format.DateTimeFormatter;
+
 import static enums.TaskType.SUBTASK;
 
 public class Subtask extends CommonTask {
@@ -22,12 +24,17 @@ public class Subtask extends CommonTask {
 
     @Override
     public String toStringToWriteToFile() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        String formatDateTime = startTime.format(formatter);
         return id + ", " +
                 SUBTASK + ", " +
                 name + ", " +
                 status + ", " +
                 description + ", " +
-                epicId;
+                epicId + ", " +
+                duration + ", " +
+                formatDateTime + ", " +
+                this.getEndTime().format(formatter);
     }
 
     public Integer getEpicId() {

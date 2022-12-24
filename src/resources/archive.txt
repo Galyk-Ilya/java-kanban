@@ -1,7 +1,0 @@
-id, type, name, status, description, epicNumber 
-1, COMMONTASK, Заголовок №1, NEW, Тело задачи №1, -
-2, EPIC_TASK, Заголовок №2, NEW, Тело задачи №2, -
-3, SUBTASK, Заголовок №3, NEW, Тело задачи №3, 2
-4, SUBTASK, Заголовок №4, NEW, Тело задачи №4, 2
-
-2, 3, 1, 

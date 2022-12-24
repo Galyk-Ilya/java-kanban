@@ -1,28 +1,29 @@
 package managers;
 
 import enums.TaskType;
-import task.*;
+import task.CommonTask;
+import task.EpicTask;
+import task.Subtask;
 
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 public interface TaskManager {
 
-    void getAllTaskList();
+    void displayTaskList();
 
     void clearTaskList();
-
-    CommonTask getById(Integer id);
 
     void deleteById(int id);
 
     List<Subtask> getListSubtasks(EpicTask task);
 
-    EpicTask createEpicTask(String nameTask, String description, TaskType type);
+    EpicTask createEpicTask(String nameTask, String description, TaskType type, int duration);
 
-    CommonTask createATask(String nameTask, String description, TaskType type);
+    CommonTask createATask(String nameTask, String description, TaskType type, int duration);
 
-    Subtask createASubtask(String nameTask, String description, TaskType type, int epicId);
+    Subtask createASubtask(String nameTask, String description, TaskType type, int epicId, int duration);
 
     void updateTask(CommonTask task);
 
@@ -37,5 +38,7 @@ public interface TaskManager {
     Integer generateID();
 
     Map<Integer, CommonTask> getTaskList();
+
+    TreeSet<CommonTask> getPrioritizedTasks();
 
 }
