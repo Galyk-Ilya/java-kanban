@@ -1,5 +1,8 @@
 package task;
 
+import enums.StatusType;
+
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import static enums.TaskType.SUBTASK;
@@ -11,6 +14,11 @@ public class Subtask extends CommonTask {
         super(name, description);
     }
 
+    public Subtask(int id, String name, StatusType status, String description,
+                   int duration, LocalDateTime startTime) {
+        super(id, name, status, description, duration, startTime);
+    }
+
     @Override
     public String toString() {
         return "Subtask{" +
@@ -19,6 +27,8 @@ public class Subtask extends CommonTask {
                 ", id=" + id + "'" +
                 ", status=" + status + "'" +
                 ", epicId=" + epicId +
+                "', duration = '" + duration + "'" +
+                "', startTime = '" + startTime + "'" +
                 '}';
     }
 
@@ -34,7 +44,7 @@ public class Subtask extends CommonTask {
                 epicId + ", " +
                 duration + ", " +
                 formatDateTime + ", " +
-                this.getEndTime().format(formatter);
+                this.calculateEndTime().format(formatter);
     }
 
     public Integer getEpicId() {

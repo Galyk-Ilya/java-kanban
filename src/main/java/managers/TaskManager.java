@@ -5,6 +5,7 @@ import task.CommonTask;
 import task.EpicTask;
 import task.Subtask;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -19,11 +20,11 @@ public interface TaskManager {
 
     List<Subtask> getListSubtasks(EpicTask task);
 
-    EpicTask createEpicTask(String nameTask, String description, TaskType type, int duration);
+    EpicTask createEpicTask(String nameTask, String description, TaskType type, int duration, LocalDateTime startTime);
 
-    CommonTask createATask(String nameTask, String description, TaskType type, int duration);
+    CommonTask createATask(String nameTask, String description, TaskType type, int duration, LocalDateTime startTime);
 
-    Subtask createASubtask(String nameTask, String description, TaskType type, int epicId, int duration);
+    Subtask createASubtask(String nameTask, String description, TaskType type, int epicId, int duration, LocalDateTime startTime);
 
     void updateTask(CommonTask task);
 

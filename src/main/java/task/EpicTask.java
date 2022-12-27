@@ -1,5 +1,7 @@
 package task;
 
+import enums.StatusType;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -14,6 +16,11 @@ public class EpicTask extends CommonTask {
         super(name, description);
     }
 
+    public EpicTask(int id, String name, StatusType status, String description,
+                    int duration, LocalDateTime startTime){
+        super(id, name, status, description, duration, startTime);
+    }
+
     private final List<Subtask> subtasksList = new ArrayList<>();
 
     @Override
@@ -24,6 +31,8 @@ public class EpicTask extends CommonTask {
                 "', id = '" + id +
                 "', status = '" + status + "'" +
 //                "', subtasksList='" + subtasksList +
+                "', duration = '" + duration + "'" +
+                "', startTime = '" + startTime + "'" +
                 "'.]}";
     }
 
@@ -39,14 +48,14 @@ public class EpicTask extends CommonTask {
                 "-" + ", " +
                 duration + ", " +
                 formatDateTime + ", " +
-                this.getEndTime().format(formatter);
+                this.calculateEndTime().format(formatter);
     }
 
     public List<Subtask> getSubtasksList() {
         return subtasksList;
     }
 
-    @Override
+
     public LocalDateTime getEndTime() {
         return endTime;
     }

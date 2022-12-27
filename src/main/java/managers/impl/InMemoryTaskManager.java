@@ -1,12 +1,8 @@
 package managers.impl;
 
 import enums.TaskType;
-import managers.HistoryManager;
-import managers.Managers;
-import managers.TaskManager;
-import task.CommonTask;
-import task.EpicTask;
-import task.Subtask;
+import managers.*;
+import task.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -19,14 +15,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     final Map<Integer, CommonTask> taskList = new HashMap<>();
     final HistoryManager getDefaultHistory = Managers.getDefaultHistory();
-    final TreeSet<CommonTask> deadline = new TreeSet<>((o1, o2) -> {
-        if (o1.getStartTime().isAfter(o2.getStartTime())) {
-            return 1;
-        } else
-            return -1;
-
-    });
-
+    final TreeSet<CommonTask> prioritizedTasks = new TreeSet<>(Comparator.comparing(CommonTask::getStartTime));
     private Integer ID = 1;
 
     @Override
@@ -72,13 +61,14 @@ public class InMemoryTaskManager implements TaskManager {
                 for (Subtask subtask : EpicTasks.getSubtasksList()) {
                     getDefaultHistory.remove(subtask.getId());
                     taskList.remove(subtask.getId(), subtask);
+                    prioritizedTasks.remove(task);
                 }
             }
             getDefaultHistory.remove(id);
             System.out.println(taskList.get(id) + " ID №" + id + " удалена.");
             taskList.remove(id);
         } else {
-            System.out.println("Задача с таким идентификатором отсутстует");
+            System.out.println("Задача с таким идентификатором отсутствует");
         }
     }
 
@@ -98,7 +88,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public CommonTask createATask(String nameTask, String description, TaskType type, int duration) {
+    public CommonTask createATask(String nameTask, String description, TaskType type, int duration, LocalDateTime startTime) {
         if (type != COMMONTASK) {
             System.out.println("Задача не создана, передан неправильный тип");
             return null;
@@ -107,14 +97,14 @@ public class InMemoryTaskManager implements TaskManager {
         CommonTask newTask = new CommonTask(nameTask, description);
         newTask.setDuration(Duration.ofMinutes(duration));
         newTask.setId(idCommonTask);
-        createDeadline(newTask);
+        createDeadline(newTask, startTime);
         taskList.put(idCommonTask, newTask);
         System.out.println("CommonTask создана, ID задачи: " + idCommonTask);
         return newTask;
     }
 
     @Override
-    public EpicTask createEpicTask(String nameTask, String description, TaskType type, int duration) {
+    public EpicTask createEpicTask(String nameTask, String description, TaskType type, int duration, LocalDateTime startTime) {
         if (type != EPIC_TASK) {
             System.out.println("Задача не создана, передан неправильный тип");
             return null;
@@ -124,14 +114,13 @@ public class InMemoryTaskManager implements TaskManager {
         newTask.setDuration(Duration.ofMinutes(duration));
         newTask.setId(idEpicTask);
         taskList.put(idEpicTask, newTask);
-        createDeadline(newTask);
-        newTask.setEndTime(newTask.getEndTime());
+        createDeadline(newTask, startTime);
         System.out.println("EpicTask создана, ID задачи: " + idEpicTask);
         return newTask;
     }
 
     @Override
-    public Subtask createASubtask(String nameTask, String description, TaskType type, int epicId, int duration) {
+    public Subtask createASubtask(String nameTask, String description, TaskType type, int epicId, int duration, LocalDateTime startTime) {
         if (type != SUBTASK) {
             System.out.println("Задача не создана, передан неправильный тип");
             return null;
@@ -145,12 +134,10 @@ public class InMemoryTaskManager implements TaskManager {
             newTask.setDuration(Duration.ofMinutes(duration));
             newTask.setId(idSubtask);
             newTask.setEpicId(epicId);
-            createDeadline(newTask);
+            createDeadline(newTask, startTime);
             EpicTask epicTask = (EpicTask) taskList.get(epicId);
-            epicTask.setEndTime(newTask.getEndTime());
-            if (epicTask.getSubtasksList().isEmpty()) {
-                epicTask.setStartTime(newTask.getStartTime());
-            }
+            epicTask.setEndTime(newTask.calculateEndTime());
+
             epicTask.getSubtasksList().add(newTask);
             taskList.put(idSubtask, newTask);
             System.out.println("Subtask создана, ID задачи: " + idSubtask);
@@ -211,7 +198,6 @@ public class InMemoryTaskManager implements TaskManager {
         return getDefaultHistory.getHistory();
     }
 
-
     @Override
     public Integer generateID() {
         while (taskList.containsKey(ID)) {
@@ -222,7 +208,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public TreeSet<CommonTask> getPrioritizedTasks() {
-        return deadline;
+        return prioritizedTasks;
     }
 
     public void updateStatus(EpicTask epicTask) {
@@ -245,14 +231,24 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-    public void createDeadline(CommonTask task) {
-        if (deadline.isEmpty()) task.setStartTime(LocalDateTime.now());
-        else task.setStartTime(deadline.last().getEndTime().plusSeconds(1));
-
-        if ((task instanceof EpicTask)) {
-            deadline.add(task);
-            EpicTask epicTask = (EpicTask) taskList.get(task.getId());
-            epicTask.setEndTime(epicTask.getStartTime().plusMinutes(epicTask.getDuration().toMinutes()));
+    public void createDeadline(CommonTask task, LocalDateTime startTime) {
+        if (prioritizedTasks.isEmpty() || prioritizedTasks.last().calculateEndTime().isBefore(startTime)) {
+            task.setStartTime(startTime);
+        } else if (task instanceof Subtask) {
+            EpicTask epicTask = (EpicTask) taskList.get(((Subtask) task).getEpicId());
+            if (!(((Subtask) task).getEpicId() == prioritizedTasks.last().getId())) {
+                task.setStartTime(prioritizedTasks.last().calculateEndTime().plusSeconds(1));
+                epicTask.setEndTime(task.calculateEndTime());
+            } else {
+                epicTask.setEndTime(task.calculateEndTime());
+                if (epicTask.getSubtasksList().isEmpty()) {
+                    epicTask.setStartTime(task.getStartTime());
+                    prioritizedTasks.remove(epicTask);
+                }
+            }
+        } else {
+            task.setStartTime(prioritizedTasks.last().calculateEndTime().plusSeconds(1));
         }
+        prioritizedTasks.add(task);
     }
 }

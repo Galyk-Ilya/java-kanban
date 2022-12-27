@@ -22,6 +22,15 @@ public class CommonTask {
         this.description = description;
         status = NEW;
     }
+    public CommonTask(int id, String name, StatusType status, String description,
+                      int duration, LocalDateTime startTime){
+        this.id = id;
+        this.name = name;
+        this.status = status;
+        this.description = description;
+        this.duration = Duration.ofMinutes(duration);
+        this.startTime = startTime;
+    }
 
     @Override
     public String toString() {
@@ -30,6 +39,8 @@ public class CommonTask {
                 ", description='" + description + "'" +
                 "', id = '" + id +
                 "', status = '" + status +
+                ", duration='" + duration + "'" +
+                ", startTime='" + startTime + "'" +
                 "'.]}";
     }
 
@@ -44,10 +55,10 @@ public class CommonTask {
                 "-" + ", " +
                 duration + ", " +
                 formatDateTime + ", " +
-                this.getEndTime().format(formatter);
+                this.calculateEndTime().format(formatter);
     }
 
-    public LocalDateTime getEndTime() {
+    public LocalDateTime calculateEndTime() {
         return startTime.plusMinutes(duration.toMinutes());
     }
 
@@ -74,6 +85,7 @@ public class CommonTask {
 
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
+
     }
 
     public Duration getDuration() {
@@ -91,4 +103,5 @@ public class CommonTask {
     public String getDescription() {
         return description;
     }
+
 }
