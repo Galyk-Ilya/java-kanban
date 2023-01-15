@@ -50,7 +50,5 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
         assertEquals(subtask2.calculateEndTime(), LocalDateTime.of(2000, 1, 2, 0, 30, 1));
         assertEquals(epicTask.getStartTime(), subtask1.getStartTime());
         assertEquals(epicTask.getEndTime(), subtask2.calculateEndTime());
-
     }
 }
-//те методы, тесты на которые я не делал, были проверены в методах их используемых из TaskManagerTest

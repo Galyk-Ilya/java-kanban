@@ -24,12 +24,16 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         this.file = file;
     }
 
+    public FileBackedTasksManager(String String) {
+        super();
+        file = null;
+    }
+
     @Override
     public CommonTask createATask(String nameTask, String description, TaskType type, int duration, LocalDateTime startTime) {
-        CommonTask newTask = super.createATask(nameTask, description, type, duration, startTime);
+        CommonTask newTask = createTaskAndPutToTaskList(nameTask, description, type, duration, startTime);
         save();
         return newTask;
-
     }
 
     @Override
@@ -111,7 +115,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     public static FileBackedTasksManager taskConverter(List<String> stringTaskList,
-                                                       FileBackedTasksManager fileBackedTasksManager) {
+                                                        FileBackedTasksManager fileBackedTasksManager) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
         for (int i = 1; i < stringTaskList.size(); i++) {
             String line = stringTaskList.get(i);

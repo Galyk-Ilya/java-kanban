@@ -4,11 +4,12 @@ import enums.StatusType;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 import static enums.TaskType.SUBTASK;
 
 public class Subtask extends CommonTask {
-    private Integer epicId;
+    private int epicId;
 
     public Subtask(String name, String description) {
         super(name, description);
@@ -53,5 +54,18 @@ public class Subtask extends CommonTask {
 
     public void setEpicId(Integer epicId) {
         this.epicId = epicId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Subtask subtask = (Subtask) o;
+        return epicId == subtask.epicId && Objects.equals(id, subtask.getId()) && Objects.equals(name,subtask.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

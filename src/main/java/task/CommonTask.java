@@ -5,6 +5,7 @@ import enums.StatusType;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 import static enums.StatusType.NEW;
 import static enums.TaskType.COMMONTASK;
@@ -32,6 +33,7 @@ public class CommonTask {
         this.startTime = startTime;
     }
 
+
     @Override
     public String toString() {
         return "{CommonTask" +
@@ -42,6 +44,21 @@ public class CommonTask {
                 ", duration='" + duration + "'" +
                 ", startTime='" + startTime + "'" +
                 "'.]}";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CommonTask task = (CommonTask) o;
+        return Objects.equals(name, task.name) && Objects.equals(description, task.description) &&
+                Objects.equals(id, task.id) && status == task.status && Objects.equals(duration, task.duration) &&
+                Objects.equals(startTime, task.startTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, description, id, status, duration, startTime);
     }
 
     public String toStringToWriteToFile() {

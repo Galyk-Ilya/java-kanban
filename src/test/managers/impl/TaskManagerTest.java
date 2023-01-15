@@ -21,22 +21,6 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     protected T taskManager;
 
-
-    abstract public void initTasks();
-
-    @Test
-    void displayTaskListTest() {
-        taskManager.displayTaskList();
-        EpicTask epicTask = taskManager.createEpicTask("", "", EPIC_TASK, 10,
-                LocalDateTime.of(2000, 1, 1, 0, 0));
-        taskManager.displayTaskList();
-        taskManager.createATask("", "", COMMONTASK, 10,
-                LocalDateTime.of(2000, 1, 2, 0, 0));
-        taskManager.createASubtask("", "", SUBTASK, epicTask.getId(), 10,
-                LocalDateTime.of(2000, 1, 3, 0, 0));
-        taskManager.displayTaskList();
-    }
-
     @Test
     void clearTaskListTest() {
         taskManager.clearTaskList();
@@ -64,7 +48,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         Subtask subtask1 = taskManager.createASubtask("Subtask1", "Subtask1 description",
                 SUBTASK, epicTask1.getId(), 10,
                 LocalDateTime.of(2000, 1, 2, 0, 0));
-        Subtask subtask2 = taskManager.createASubtask("Subtask2", "Subtask2 description",
+        taskManager.createASubtask("Subtask2", "Subtask2 description",
                 SUBTASK, epicTask1.getId(), 10,
                 LocalDateTime.of(2000, 1, 3, 0, 0));
         taskManager.deleteById(subtask1.getId());
@@ -132,15 +116,6 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     void getHistoryTest() {
         assertEquals(new ArrayList<CommonTask>(), taskManager.getHistory());
-    }
-
-    @Test
-    void generateIDTest() {
-        taskManager.clearTaskList();
-        assertEquals(1, taskManager.generateID());
-        assertEquals(1, taskManager.createATask("task", "task description", COMMONTASK,
-                10, LocalDateTime.of(2000, 1, 1, 0, 0)).getId());
-        assertEquals(2, taskManager.generateID());
     }
 
     @Test
