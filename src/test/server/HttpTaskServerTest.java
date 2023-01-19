@@ -18,6 +18,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -30,7 +31,8 @@ public class HttpTaskServerTest {
     HttpTaskServer httpTaskServer;
     HttpClient httpClient = HttpClient.newHttpClient();
 //Все тесты работают при запуске в индивидуальном порядке, разработка этого класса не входит в ТЗ(согласно тз -тесты написал),
-    //но для себя, прошу направить, в чем проблема с запуском сервера
+    //но для себя, прошу направить, в чем проблема с запуском сервера, предполагаю сервер не успевает
+    // одновременно обрабатывать все запросы тестов(пробовал добавлять задержку в request
 
 
     @BeforeEach
@@ -71,9 +73,6 @@ public class HttpTaskServerTest {
     public void stopServer() {
         kvServer.stop();
         httpTaskServer.stop();
-
-        kvServer = null;
-        httpTaskServer = null;
     }
 
     @Test
@@ -85,8 +84,6 @@ public class HttpTaskServerTest {
 
     @Test
     public void endpointGET_TASKTest() {
-        createServers();
-        createTask();
         String jsonTask1 = load("/task/1").body();
 
         CommonTask task = gson.fromJson(jsonTask1, CommonTask.class);
@@ -208,11 +205,12 @@ public class HttpTaskServerTest {
         assertEquals(200, load("/task/1").statusCode());
         assertEquals(200, load("/subtask/6").statusCode());
         assertEquals(200, delete("/task/").statusCode());
-
         assertEquals(400, load("/task/1").statusCode());
         assertEquals(400, load("/subtask/6").statusCode());
         assertEquals("Некорректный идентификатор задачи, или задача №1 не является Task",
                 load("/task/1").body());
+        //тест отрабатывает если читать его построчно(дебажить), если запустить то не успевает с сервера обрабатывать
+        //запросы (наверно)
     }
 
 
@@ -231,7 +229,7 @@ public class HttpTaskServerTest {
     private HttpResponse<String> delete(String query) {
 
         URI url = URI.create("http://localhost:8080/tasks" + query);
-        HttpRequest request = HttpRequest.newBuilder().uri(url).DELETE().build();
+        HttpRequest request = HttpRequest.newBuilder().uri(url).DELETE().timeout(Duration.ofSeconds(5)).build();
         try {
             return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (InterruptedException | IOException e) {
@@ -252,7 +250,7 @@ public class HttpTaskServerTest {
         }
     }
 
-    public List<CommonTask> parseJsonFromList(String xjson) {
+    private List<CommonTask> parseJsonFromList(String xjson) {
         List<CommonTask> list = new ArrayList<>();
         JsonParser jsonParser = new JsonParser();
         JsonArray array = (JsonArray) jsonParser.parse(xjson);
@@ -271,7 +269,7 @@ public class HttpTaskServerTest {
         return list;
     }
 
-    public Map<Integer, CommonTask> parseJsonFromMap(String xjson) {
+    private Map<Integer, CommonTask> parseJsonFromMap(String xjson) {
         Map<Integer, CommonTask> TaskList = new HashMap<>();
         JsonParser jsonParser = new JsonParser();
         JsonObject array = (JsonObject) jsonParser.parse(xjson);

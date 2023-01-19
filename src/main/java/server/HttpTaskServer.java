@@ -232,7 +232,7 @@ public class HttpTaskServer {
                 int duration = Integer.parseInt(String.valueOf(task.getDuration().toMinutes()));
                 LocalDateTime startTime = task.getStartTime();
 
-                if (manager.getTaskList().containsKey(id)) {
+                if (manager.getTaskList() != null && manager.getTaskList().containsKey(id)) {
                     manager.updateTask(task);
                     return "updated";
                 } else {
@@ -276,7 +276,7 @@ public class HttpTaskServer {
 
         enum Endpoint {
             GET_TASKS, GET_TASK,
-            POST_TASK/*Добавить логику на разделение - добавления или обновления таски*/,
+            POST_TASK,
             DELETE_TASKS, DELETE_TASK,
             GET_EPIC, GET_SUBTASK_LIST,
             GET_SUBTASK,

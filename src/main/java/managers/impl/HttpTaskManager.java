@@ -1,16 +1,17 @@
 package managers.impl;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import enums.TaskType;
 import exception.ManagerLoadException;
 import server.KVTaskClient;
-import task.CommonTask;
-import task.EpicTask;
-import task.Subtask;
+import task.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
 public class HttpTaskManager extends FileBackedTasksManager {
     public KVTaskClient taskClient;
@@ -27,6 +28,27 @@ public class HttpTaskManager extends FileBackedTasksManager {
     }
 
     @Override
+    public Map<Integer, CommonTask> getTaskList() {
+        String stringTaskList = clientLoad("Tasks");
+        if (stringTaskList == null) {return null;}
+        return parseJsonFromMap(stringTaskList);
+    }
+
+    @Override
+    public List<CommonTask> getHistory() {
+        String stringHistory = clientLoad("History");
+        if (stringHistory == null) {return null;}
+        return parseJsonFromList(stringHistory);
+    }
+
+    @Override
+    public TreeSet<CommonTask> getPrioritizedTasks() {
+        String stringPrioritizedTasks = clientLoad("PrioritizedTasks");
+        if (stringPrioritizedTasks == null) {return null;}
+        return parseJsonFromSet(stringPrioritizedTasks);
+    }
+
+    @Override
     public void updateTask(CommonTask task) {
         super.updateTask(task);
         if (task instanceof Subtask) {
@@ -34,6 +56,7 @@ public class HttpTaskManager extends FileBackedTasksManager {
             clientPut(String.valueOf(epicId), gson.toJson(taskList.get(epicId)));
         }
         clientPut(String.valueOf(task.getId()), gson.toJson(task));
+        save();
     }
 
     @Override
@@ -42,6 +65,7 @@ public class HttpTaskManager extends FileBackedTasksManager {
         if (newTask != null) {
             clientPut(String.valueOf(newTask.getId()), gson.toJson(newTask));
         }
+        save();
         return newTask;
     }
 
@@ -51,6 +75,7 @@ public class HttpTaskManager extends FileBackedTasksManager {
         if (newTask != null) {
             clientPut(String.valueOf(newTask.getId()), gson.toJson(newTask));
         }
+        save();
         return newTask;
     }
 
@@ -63,6 +88,7 @@ public class HttpTaskManager extends FileBackedTasksManager {
             epicTask.getSubtasksList().add(newTask);
             clientPut(String.valueOf(epicTask.getId()), gson.toJson(epicTask));
         }
+        save();
         return newTask;
     }
 
@@ -72,6 +98,7 @@ public class HttpTaskManager extends FileBackedTasksManager {
         if (json != null && !json.isBlank()) {
             CommonTask task = gson.fromJson(json, CommonTask.class);
             addToHistory(task);
+            save();
             return task;
         } else {
             return null;
@@ -84,6 +111,7 @@ public class HttpTaskManager extends FileBackedTasksManager {
         if (json != null && !json.isBlank()) {
             EpicTask task = gson.fromJson(json, EpicTask.class);
             addToHistory(task);
+            save();
             return task;
         } else {
             return null;
@@ -96,6 +124,7 @@ public class HttpTaskManager extends FileBackedTasksManager {
         if (json != null && !json.isBlank()) {
             Subtask task = gson.fromJson(json, Subtask.class);
             addToHistory(task);
+            save();
             return task;
         } else {
             return null;
@@ -110,7 +139,9 @@ public class HttpTaskManager extends FileBackedTasksManager {
         prioritizedTasks.clear();
         getDefaultHistory.clear();
         taskList.clear();
-
+        clientPut("History", "DELETE");
+        clientPut("Tasks", "DELETE");
+        clientPut("PrioritizedTasks", "DELETE");
     }
 
     @Override
@@ -130,18 +161,12 @@ public class HttpTaskManager extends FileBackedTasksManager {
 
     @Override
     public void save() {
-//                Не совсем понял комментарий ниже, т.е. описать всю логику сохранения или загрузки тасок только
-//                в два метода не переопределяя остальные методы?
-//                Совсем не понял это - "и сделать несколько пут внутри одного метода для всего разом."
-        //Опиши подробнее мысль, пожалуйста.
-//
-//        Ну то есть, можно было не переопределять все методы, добавляя туда clientPut.
-//        Можно переопределить save и сделать несколько пут внутри одного метода для всего разом.
-//                И этот save будет вызываться из верхних методов FileBackedTasksManager
+        if (getDefaultHistory.getHistory() !=null)
+        clientPut("History", gson.toJson(getDefaultHistory.getHistory()));
 
-//        load всех коллекций тоже может быть будет лучше целиком производить.
-//        Ну то есть в client бы сохраняли каждый раз целиком все коллекции на вызов save
-//        И в load бы их все загружали.
+        clientPut("Tasks", gson.toJson(taskList));
+        clientPut("PrioritizedTasks", gson.toJson(prioritizedTasks));
+        //надеюсь правильно понял мысль
     }
 
     private void clientPut(String id, String body) {
@@ -159,5 +184,60 @@ public class HttpTaskManager extends FileBackedTasksManager {
             throw new ManagerLoadException("Ошибка обработки запроса");
         }
     }
+    public List<CommonTask> parseJsonFromList(String xjson) {
+        List<CommonTask> list = new ArrayList<>();
+        JsonParser jsonParser = new JsonParser();
+        JsonArray array = (JsonArray) jsonParser.parse(xjson);
+        CommonTask task = null;
+        for (int i = 0; i < array.size(); i++) {
+            String jsonElement = array.get(i).toString();
+            if (jsonElement.contains("subtasksList")) {
+                task = gson.fromJson(jsonElement, EpicTask.class);
+            } else if (jsonElement.contains("epicId")) {
+                task = gson.fromJson(jsonElement, Subtask.class);
+            } else if (!jsonElement.contains("epicId") && !jsonElement.contains("subtasksList")) {
+                task = gson.fromJson(jsonElement, CommonTask.class);
+            }
+            list.add(task);
+        }
+        return list;
+    }
 
+    public TreeSet<CommonTask> parseJsonFromSet(String xjson) {
+        TreeSet<CommonTask> list = new TreeSet<>(Comparator.comparing(CommonTask::getStartTime));
+        JsonParser jsonParser = new JsonParser();
+        JsonArray array = (JsonArray) jsonParser.parse(xjson);
+        CommonTask task = null;
+        for (int i = 0; i < array.size(); i++) {
+            String jsonElement = array.get(i).toString();
+            if (jsonElement.contains("subtasksList")) {
+                task = gson.fromJson(jsonElement, EpicTask.class);
+            } else if (jsonElement.contains("epicId")) {
+                task = gson.fromJson(jsonElement, Subtask.class);
+            } else if (!jsonElement.contains("epicId") && !jsonElement.contains("subtasksList")) {
+                task = gson.fromJson(jsonElement, CommonTask.class);
+            }
+            list.add(task);
+        }
+        return list;
+    }
+
+    public Map<Integer, CommonTask> parseJsonFromMap(String xjson) {
+        Map<Integer, CommonTask> TaskList = new HashMap<>();
+        JsonParser jsonParser = new JsonParser();
+        JsonObject array = (JsonObject) jsonParser.parse(xjson);
+        CommonTask task = null;
+        for (String s : array.asMap().keySet()) {
+            String jsonElement = array.asMap().get(s).toString();
+            if (jsonElement.contains("subtasksList")) {
+                task = gson.fromJson(jsonElement, EpicTask.class);
+            } else if (jsonElement.contains("epicId")) {
+                task = gson.fromJson(jsonElement, Subtask.class);
+            } else if (!jsonElement.contains("epicId") && !jsonElement.contains("subtasksList")) {
+                task = gson.fromJson(jsonElement, CommonTask.class);
+            }
+            TaskList.put(Integer.parseInt(s), task);
+        }
+        return TaskList;
+    }
 }

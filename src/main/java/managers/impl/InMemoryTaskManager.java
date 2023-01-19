@@ -15,7 +15,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     protected final Map<Integer, CommonTask> taskList = new HashMap<>();
     protected final HistoryManager getDefaultHistory = Managers.getDefaultHistory();
-    protected final TreeSet<CommonTask> prioritizedTasks = new TreeSet<>(Comparator.comparing(CommonTask::getStartTime));
+    protected TreeSet<CommonTask> prioritizedTasks = new TreeSet<>(Comparator.comparing(CommonTask::getStartTime));
     protected Integer ID = 1;
 
     @Override
@@ -240,7 +240,6 @@ public class InMemoryTaskManager implements TaskManager {
         createDeadline(newTask, startTime);
         return newTask;
     }
-
 
     protected Subtask createSubtaskAndPutToTaskList(String nameTask, String description, TaskType type, int epicId, int duration, LocalDateTime startTime) {
         if (type != SUBTASK) {
