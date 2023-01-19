@@ -13,10 +13,10 @@ import static enums.TaskType.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    final Map<Integer, CommonTask> taskList = new HashMap<>();
-    final HistoryManager getDefaultHistory = Managers.getDefaultHistory();
-    final TreeSet<CommonTask> prioritizedTasks = new TreeSet<>(Comparator.comparing(CommonTask::getStartTime));
-    private Integer ID = 1;
+    protected final Map<Integer, CommonTask> taskList = new HashMap<>();
+    protected final HistoryManager getDefaultHistory = Managers.getDefaultHistory();
+    protected final TreeSet<CommonTask> prioritizedTasks = new TreeSet<>(Comparator.comparing(CommonTask::getStartTime));
+    protected Integer ID = 1;
 
     @Override
     public Map<Integer, CommonTask> getTaskList() {
@@ -65,6 +65,7 @@ public class InMemoryTaskManager implements TaskManager {
                     prioritizedTasks.remove(task);
                 }
             }
+            prioritizedTasks.remove(task);
             getDefaultHistory.remove(id);
             System.out.println(taskList.get(id) + " ID №" + id + " удалена.");
             taskList.remove(id);

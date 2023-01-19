@@ -13,7 +13,7 @@ import static enums.TaskType.COMMONTASK;
 public class CommonTask {
     protected String name;
     protected String description;
-    protected Integer id;
+    protected int id;
     protected StatusType status;
     protected Duration duration;
     protected LocalDateTime startTime;

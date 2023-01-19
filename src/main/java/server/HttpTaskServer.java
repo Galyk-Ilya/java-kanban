@@ -30,21 +30,25 @@ public class HttpTaskServer {
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     private static final int PORT = 8080;
     private static final Gson gson = new Gson();
-    HttpServer httpServer;
-    public void start() {
+    protected HttpServer httpServer;
 
+    public HttpTaskServer() {
         try {
-             httpServer = HttpServer.create();
+            httpServer = HttpServer.create();
             httpServer.bind(new InetSocketAddress(PORT), 0);
             httpServer.createContext("/tasks", new TasksHandler());
-            httpServer.start();
-            System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    public void stop(){
-        httpServer.stop(1);
+
+    public void start() {
+        httpServer.start();
+        System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
+    }
+
+    public void stop() {
+        httpServer.stop(5);
     }
 
     static class TasksHandler implements HttpHandler {
@@ -56,7 +60,11 @@ public class HttpTaskServer {
             try {
                 switch (endpoint) {
                     case GET_TASKS:
+                        if (!manager.getTaskList().isEmpty()) {
                         writeResponse(exchange, gson.toJson(manager.getTaskList()), 200);
+                        } else {
+                            writeResponse(exchange, "Список задач пуст", 200);
+                        }
                         break;
 
                     case GET_TASK: {
@@ -119,10 +127,18 @@ public class HttpTaskServer {
                         }
                     }
                     case GET_HISTORY:
-                        writeResponse(exchange, gson.toJson(manager.getHistory()), 200);
+                        if (!manager.getHistory().isEmpty()) {
+                            writeResponse(exchange, gson.toJson(manager.getHistory()), 200);
+                        } else {
+                            writeResponse(exchange, "История запросов пуста", 200);
+                        }
                         break;
                     case GET_TASKS_PRIORITIZED:
+                        if (!manager.getPrioritizedTasks().isEmpty()) {
                         writeResponse(exchange, gson.toJson(manager.getPrioritizedTasks()), 200);
+                        } else {
+                            writeResponse(exchange, "Список задач пуст", 200);
+                        }
                         break;
                     case POST_TASK: {
                         try (InputStream inputStream = exchange.getRequestBody()) {
@@ -139,7 +155,7 @@ public class HttpTaskServer {
                                     writeResponse(exchange, "Задача обновлена", 201);
                                     break;
                                 case "null":
-                                    writeResponse(exchange, "Заполните обязательные поля задачи", 400);
+                                    writeResponse(exchange, "Заполните обязательные поля задачи или убедитесь в наличии Epic для Subtask", 400);
                                     break;
                             }
                         } catch (JsonSyntaxException exception) {
@@ -148,7 +164,8 @@ public class HttpTaskServer {
                         }
                     }
                     default:
-                        writeResponse(exchange, "Такого эндпоинта не существует", 404);
+                        writeResponse(exchange, "Такого эндпоинта не существует или используемый метод не предусмотрен",
+                                404);
                 }
             } catch (IOException exception) {
                 throw new ManagerIOException("Сбой сервера, повторите попытку");
@@ -214,6 +231,7 @@ public class HttpTaskServer {
                 String description = task.getDescription();
                 int duration = Integer.parseInt(String.valueOf(task.getDuration().toMinutes()));
                 LocalDateTime startTime = task.getStartTime();
+
                 if (manager.getTaskList().containsKey(id)) {
                     manager.updateTask(task);
                     return "updated";
@@ -223,6 +241,9 @@ public class HttpTaskServer {
                                 TaskType.EPIC_TASK, duration, startTime);
                         epicTask.setStatus(task.getStatus());
                     } else if (task instanceof Subtask) {
+                        if (!manager.getTaskList().containsKey(((Subtask) task).getEpicId())) {
+                            return "null";
+                        }
                         Subtask subtask = manager.createASubtask(name, description, TaskType.SUBTASK,
                                 ((Subtask) task).getEpicId(), duration, startTime);
                         subtask.setStatus(task.getStatus());

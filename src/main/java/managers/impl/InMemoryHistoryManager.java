@@ -51,7 +51,9 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     private List<CommonTask> getTasks() {
         ArrayList<CommonTask> test = new ArrayList<>();
-        if (first == null) { return test;}
+        if (first == null) {
+            return test;
+        }
         Node currentNode = first;
 
         while (currentNode.next != null) {
@@ -80,6 +82,12 @@ public class InMemoryHistoryManager implements HistoryManager {
             next.prev = prev;
             x.next = null;
         }
+    }
+
+    @Override
+    public void clear() {
+        first = null;
+        nodeMap.clear();
     }
 
     public static class Node {

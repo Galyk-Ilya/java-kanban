@@ -115,7 +115,7 @@ public class KVServer {
 
     public void stop() {
         data.clear();
-        server.stop(0);
+        server.stop(5);
     }
 
     protected boolean hasAuth(HttpExchange h) {

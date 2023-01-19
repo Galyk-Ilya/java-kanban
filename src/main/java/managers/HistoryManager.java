@@ -15,4 +15,6 @@ public interface HistoryManager {
     void remove(int id);
 
     HashMap<Integer, InMemoryHistoryManager.Node> getNodeMap();
+
+    void clear();
 }

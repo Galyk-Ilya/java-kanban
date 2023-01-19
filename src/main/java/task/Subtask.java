@@ -19,6 +19,11 @@ public class Subtask extends CommonTask {
                    int duration, LocalDateTime startTime) {
         super(id, name, status, description, duration, startTime);
     }
+    public Subtask(int id, String name, StatusType status, String description, int epicId,
+                   int duration, LocalDateTime startTime) {
+        super(id, name, status, description, duration, startTime);
+        this.epicId = epicId;
+    }
 
     @Override
     public String toString() {

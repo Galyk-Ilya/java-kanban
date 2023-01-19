@@ -11,8 +11,6 @@ import task.Subtask;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
 
 public class HttpTaskManager extends FileBackedTasksManager {
     public KVTaskClient taskClient;
@@ -38,6 +36,7 @@ public class HttpTaskManager extends FileBackedTasksManager {
         clientPut(String.valueOf(task.getId()), gson.toJson(task));
     }
 
+    @Override
     public CommonTask createATask(String nameTask, String description, TaskType type, int duration, LocalDateTime startTime) {
         CommonTask newTask = createTaskAndPutToTaskList(nameTask, description, type, duration, startTime);
         if (newTask != null) {
@@ -71,7 +70,7 @@ public class HttpTaskManager extends FileBackedTasksManager {
     public CommonTask getTask(int id) {
         String json = clientLoad(String.valueOf(id));
         if (json != null && !json.isBlank()) {
-            CommonTask task = gson.fromJson(json,CommonTask.class);
+            CommonTask task = gson.fromJson(json, CommonTask.class);
             addToHistory(task);
             return task;
         } else {
@@ -83,26 +82,24 @@ public class HttpTaskManager extends FileBackedTasksManager {
     public EpicTask getEpic(int id) {
         String json = clientLoad(String.valueOf(id));
         if (json != null && !json.isBlank()) {
-   //         addToHistory(id);
-            return gson.fromJson(json, EpicTask.class);
-        }
-        return null;
-    }
-
-    @Override
-    public Subtask getSubtask(int id) {
-        String json = clientLoad(String.valueOf(id));
-        if (json != null && !json.isBlank()) {
-      //      addToHistory(id);
-            return gson.fromJson(json, Subtask.class);
+            EpicTask task = gson.fromJson(json, EpicTask.class);
+            addToHistory(task);
+            return task;
         } else {
             return null;
         }
     }
 
     @Override
-    public Map<Integer, CommonTask> getTaskList() {
-        return super.getTaskList();
+    public Subtask getSubtask(int id) {
+        String json = clientLoad(String.valueOf(id));
+        if (json != null && !json.isBlank()) {
+            Subtask task = gson.fromJson(json, Subtask.class);
+            addToHistory(task);
+            return task;
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -111,7 +108,9 @@ public class HttpTaskManager extends FileBackedTasksManager {
             clientPut(String.valueOf(task.getId()), gson.toJson(new CommonTask("DELETE", "DELETE")));
         }
         prioritizedTasks.clear();
+        getDefaultHistory.clear();
         taskList.clear();
+
     }
 
     @Override
@@ -124,30 +123,25 @@ public class HttpTaskManager extends FileBackedTasksManager {
     public List<Subtask> getListSubtasks(EpicTask task) {
         List<Subtask> subtaskList = super.getListSubtasks(task);
         EpicTask epic = gson.fromJson(clientLoad(gson.toJson(subtaskList)), EpicTask.class);
-        if (epic.getSubtasksList().equals(subtaskList))
+        if (task != null && epic.getSubtasksList().equals(subtaskList))
             return epic.getSubtasksList();
         else return null;
     }
 
     @Override
-    public List<CommonTask> getHistory() {
-        return super.getHistory();
-    }
-
-    @Override
-    public TreeSet<CommonTask> getPrioritizedTasks() {
-        return super.getPrioritizedTasks();
-    }
-
-    @Override
     public void save() {
-        //Логика FileBackedTasksManager очень сильно в методе save() зависима с классом File
-        //Мне удобнее было бы наследоваться от InMemoryTaskManager, но это не соответствует ТЗ
-        //p.s. Поэтому пришлось таким образом заруинить метод тут
-        //Буду раз комментариям как можно было бы обойти эту ситуацию)
+//                Не совсем понял комментарий ниже, т.е. описать всю логику сохранения или загрузки тасок только
+//                в два метода не переопределяя остальные методы?
+//                Совсем не понял это - "и сделать несколько пут внутри одного метода для всего разом."
+        //Опиши подробнее мысль, пожалуйста.
+//
+//        Ну то есть, можно было не переопределять все методы, добавляя туда clientPut.
+//        Можно переопределить save и сделать несколько пут внутри одного метода для всего разом.
+//                И этот save будет вызываться из верхних методов FileBackedTasksManager
 
-        //Также буду раз по коду комментариям, использование бесполезных или слишком сложных способов
-        //достижения цели, неправильных модификаторов доступа и т.д.
+//        load всех коллекций тоже может быть будет лучше целиком производить.
+//        Ну то есть в client бы сохраняли каждый раз целиком все коллекции на вызов save
+//        И в load бы их все загружали.
     }
 
     private void clientPut(String id, String body) {
@@ -167,4 +161,3 @@ public class HttpTaskManager extends FileBackedTasksManager {
     }
 
 }
-//переписать методы крейт и гет исключить супер
